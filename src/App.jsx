@@ -7,6 +7,7 @@ import ReactModal from 'react-modal';
 function App() {
   return (
     <div className="App">
+    <h1> WeatherApp </h1>
       <SearchBar/>
     </div>
   );
@@ -22,8 +23,6 @@ function SearchBar() {
     let city = document.getElementById("cityInput").value;
     if ((event.key === "Enter") && (city)){
         let baseURL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=100&appid=7a1a207152a4ac5849fca18e3bbdc380`;
-        // TODO: uncomment this
-        // clear('cityInput');
         const respose = await fetch(baseURL)
         setCities(await respose.json())  
     }
@@ -32,13 +31,13 @@ function SearchBar() {
   if (cities) {
     return (
       <div>
-        <input className='w-[20rem] h-[2rem]' id="cityInput" onKeyDown={searchCities}></input>
-        <CityList className='align-top' cities={cities}/>
+        <input className='w-[20rem] h-[2rem] m-2 text-center rounded-md' id="cityInput" onKeyDown={searchCities}></input>
+        <CityList cities={cities}/>
       </div>
     )
   } else {
     return (
-      <input id="cityInput" onKeyDown={searchCities}></input>
+      <input className='w-[20rem] h-[2rem] m-2 text-center rounded-md' id="cityInput" onKeyDown={searchCities}></input>
     )
   }
 
@@ -49,10 +48,10 @@ function CityList(props) {
   const [isModalOpen, setModalOpen] = useState(false)
   const [modalData, setModalData] = useState(null)
   const [mainData, setMainData] = useState({
-    "temp": "°C",
-    "feels_like": "°C",
-    "temp_min": "°C",
-    "temp_max": "°C",
+    "temp": "",
+    "feels_like": "",
+    "temp_min": "",
+    "temp_max": "",
     "pressure": "",
     "humidity": ""
   })
@@ -65,6 +64,16 @@ function CityList(props) {
     return setModalOpen(false)
   }
 
+  const is_temp = ["temp", "feels_like", "temp_min", "temp_max"];
+
+  const keyMapping = {
+    "temp": "Temperature",
+    "feels_like": "Feels Like",
+    "temp_min": "Minimum Temperature",
+    "temp_max": "Maximum Temperature",
+    "pressure": "Pressure",
+    "humidity": "Humidity"
+  }
  
   useEffect(()=> {
     if (modalData) { 
@@ -73,26 +82,44 @@ function CityList(props) {
     }
   }, [modalData])
 
+
   const cities = props.cities;
-  const listItems = cities.map((city) =>
+  const cityItems = cities.map((city) =>
     <City key={cities.indexOf(city)} city={city} setModalData={setModalData} handleModalOpen={handleModalOpen}/>
   );
+
+
   const mainDataList = Object.keys(mainData).map((key) => 
-    <li>{key}:{mainData[key]}</li>
+    <div className='flex flex-x justify-between bg-slate-600 rounded-md p-1'>
+      <div>
+        {keyMapping[key]}
+      </div>
+      <div>
+        {mainData[key]}
+        {/* add approppriate units to values*/}
+        {is_temp.includes(key) ? " °C" : ""} 
+        {key=="pressure" ? " PSI" : ""}
+        {key=="humidity" ? " %" : ""}
+      </div>
+    </div>
   );
   return (
     <div>
       <div>
-        <ReactModal className={'bg-gray-500 p-3 absolute inset-0 rounded-xl'} isOpen={isModalOpen} handleModalOpen={handleModalOpen} ariaHideApp={false}>
-          <div>
-          {mainDataList}
-          <img src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
-          <button onClick={handleModalClose}> Close </button>
+        <ReactModal
+          className={'bg-gray-500 absolute top-[35%] left-[25%] w-1/2 h-auto rounded-xl'}
+          isOpen={isModalOpen}
+          handleModalOpen={handleModalOpen}
+          ariaHideApp={false}>
+          <div className='flex flex-col space-y-1 p-2 justify-center' >
+            <div className='flex flex-col space-y-3 p-2'>{mainDataList}</div>
+            <img className='w-36 ' src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
+            <button className='w-1/5' onClick={handleModalClose}> Close </button>
           </div>
         </ReactModal>
       </div>
-      <ol>
-        {listItems}
+      <ol className='flex justify-center space-x-2 p-2'>
+        {cityItems}
       </ol>
     </div>
   );
@@ -123,11 +150,17 @@ function City({city, setModalData, handleModalOpen}){
   }
 
   return (
-    <>
-      <button onClick={onClick}>
-      {city.name}
-      </button>
-    </>
+    <button className='flex flex-col items-center w-52' onClick={onClick}>
+      <li>
+      {city.name} 
+      </li>
+      <li>
+      {city.state} 
+      </li>
+      <li>
+      {city.country} 
+      </li>
+    </button>
   )
 }
 
