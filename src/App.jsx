@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import './App.css'
 import React from "react"
 import ReactModal from 'react-modal';
@@ -17,10 +17,11 @@ function App() {
 function SearchBar() {
 
   const [cities, setCities] = useState(null)
+  const searchRef = useRef()
 
   const searchCities = async (event) => {
     // get city
-    let city = document.getElementById("cityInput").value;
+    let city = searchRef.current.value;
     if ((event.key === "Enter") && (city)){
         let baseURL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=100&appid=7a1a207152a4ac5849fca18e3bbdc380`;
         const respose = await fetch(baseURL)
@@ -28,115 +29,96 @@ function SearchBar() {
     }
   }
 
-  if (cities) {
-    return (
-      <div>
-        <input className='w-[20rem] h-[2rem] m-2 text-center rounded-md' id="cityInput" onKeyDown={searchCities}></input>
-        <CityList cities={cities}/>
-      </div>
-    )
-  } else {
-    return (
-      <input className='w-[20rem] h-[2rem] m-2 text-center rounded-md' id="cityInput" onKeyDown={searchCities}></input>
-    )
-  }
+  return (
+    <div>
+      <input className='w-[20rem] h-[2rem] m-2 text-center rounded-md' id="cityInput" ref={searchRef} onKeyDown={searchCities}></input>
+      {cities && <CityList cities={cities}/>}
+    </div>
+  )
 
 }
 
-function CityList(props) {
+function CityList({cities}) {
 
-  const [isModalOpen, setModalOpen] = useState(false)
+  const [open, setOpen] = useState(false)
   const [modalData, setModalData] = useState(null)
-  const [mainData, setMainData] = useState({
-    "temp": "",
-    "feels_like": "",
-    "temp_min": "",
-    "temp_max": "",
-    "pressure": "",
-    "humidity": ""
-  })
-  const [iconCode, setIconCode] = useState("")
 
-  const handleModalOpen = () => {
-    return setModalOpen(true);
-  }
-  const handleModalClose = () => {
-    return setModalOpen(false)
-  }
+
+  const cityItems = cities.map((city, index) =>
+    <City key={index} city={city} setModalData={setModalData} handleModalOpen={() => setOpen(true)}/>
+  );
+
+  return (
+    <div>
+      <ol className='flex justify-center space-x-2 p-2'>
+        {cityItems}
+      </ol>
+      {modalData && <Modal data={modalData} setModalOpen={setOpen} isOpen={open}/>}
+    </div>
+  );
+}
+
+function Modal({data, setModalOpen, isOpen}) {
+
+  console.log(data);
+  const iconCode = data.weather[0].icon;
 
   const is_temp = ["temp", "feels_like", "temp_min", "temp_max"];
-
   const keyMapping = {
     "temp": "Temperature",
     "feels_like": "Feels Like",
     "temp_min": "Minimum Temperature",
     "temp_max": "Maximum Temperature",
     "pressure": "Pressure",
-    "humidity": "Humidity"
+    "humidity": "Humidity",
+    "grnd_level": "Ground Level",
+    "sea_level": "Sea Level"
   }
- 
-  useEffect(()=> {
-    if (modalData) { 
-      setMainData({...modalData.main})
-      setIconCode(modalData.weather[0].icon)
-    }
-  }, [modalData])
 
-
-  const cities = props.cities;
-  const cityItems = cities.map((city) =>
-    <City key={cities.indexOf(city)} city={city} setModalData={setModalData} handleModalOpen={handleModalOpen}/>
-  );
-
-
-  const mainDataList = Object.keys(mainData).map((key) => 
-    <div className='flex flex-x justify-between bg-slate-600 rounded-md p-1'>
+  const mainDataList = Object.keys(data.main).map((key, index) => 
+    <div key={index} className='flex flex-x justify-between bg-slate-600 rounded-md p-1'>
       <div>
         {keyMapping[key]}
       </div>
       <div>
-        {mainData[key]}
+        {data.main[key]}
         {/* add approppriate units to values*/}
         {is_temp.includes(key) ? " °C" : ""} 
-        {key=="pressure" ? " PSI" : ""}
-        {key=="humidity" ? " %" : ""}
+        {key=="pressure" && " PSI"}
+        {key=="humidity" && " %"}
+        {key=="grnd_level" && " m" }
+        {key=="sea_level" && ' m'}
       </div>
     </div>
   );
+
   return (
-    <div>
-      <div>
-        <ReactModal
-          className={'bg-gray-500 absolute top-[35%] left-[25%] w-1/2 h-auto rounded-xl'}
-          isOpen={isModalOpen}
-          handleModalOpen={handleModalOpen}
-          ariaHideApp={false}>
-          <div className='flex flex-col space-y-1 p-2' >
-            <div className='flex flex-col space-y-3 p-2'>{mainDataList}</div>
-            <img className='w-1/6' src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
-            <button className='w-fit' onClick={handleModalClose}> Close </button>
-          </div>
-        </ReactModal>
+    <ReactModal
+      className={'bg-gray-500 absolute top-[35%] left-[25%] w-1/2 h-auto rounded-xl'}
+      isOpen={isOpen}
+      handleModalOpen={setModalOpen}
+      ariaHideApp={false}>
+      <div className='flex flex-col space-y-1 p-2' >
+        <div className='flex flex-col space-y-3 p-2'>{mainDataList}</div>
+        <img className='w-1/6' src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
+        <button className='w-fit' onClick={()=> setModalOpen(false)}> Close </button>
       </div>
-      <ol className='flex justify-center space-x-2 p-2'>
-        {cityItems}
-      </ol>
-    </div>
-  );
+    </ReactModal>  
+  )
 }
 
 
 function City({city, setModalData, handleModalOpen}){
-  const [data, setData] = useState(null)
 
-  const onClick = () => {
-    getWeather();
+  const [loadingState, setLoadingState] = useState("idle")
+
+  const onClick = async () => {
+    setLoadingState("pending");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await getWeather();
+    setLoadingState("complete");
     handleModalOpen();
   }
-
-  useEffect(() => {
-    setModalData(data)
-  }, [data])
 
   const getWeather = async () => {
     let baseURL = `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&units=metric&appid=7a1a207152a4ac5849fca18e3bbdc380`;
@@ -146,7 +128,13 @@ function City({city, setModalData, handleModalOpen}){
       'main': m.main,
       'weather': m.weather
     }
-    setData({...data})
+    setModalData(data)
+  }
+
+  if (loadingState === "pending"){
+    return (
+      "Loading"
+    )
   }
 
   return (
