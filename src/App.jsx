@@ -111,10 +111,10 @@ function CityList(props) {
           isOpen={isModalOpen}
           handleModalOpen={handleModalOpen}
           ariaHideApp={false}>
-          <div className='flex flex-col space-y-1 p-2 justify-center' >
+          <div className='flex flex-col space-y-1 p-2' >
             <div className='flex flex-col space-y-3 p-2'>{mainDataList}</div>
-            <img className='w-36 ' src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
-            <button className='w-1/5' onClick={handleModalClose}> Close </button>
+            <img className='w-1/6' src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
+            <button className='w-fit' onClick={handleModalClose}> Close </button>
           </div>
         </ReactModal>
       </div>
