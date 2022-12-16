@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import './App.css'
 import React from "react"
 import ReactModal from 'react-modal';
@@ -6,9 +6,11 @@ import ReactModal from 'react-modal';
 
 function App() {
   return (
-    <div className="App">
-    <h1> WeatherApp </h1>
+    <div className='flex flex-col relative top-80'>
+
+      <h1 className='select-none text-8xl font-mono'> Weather App </h1>
       <SearchBar/>
+
     </div>
   );
 }
@@ -30,8 +32,20 @@ function SearchBar() {
   }
 
   return (
-    <div>
-      <input className='w-[20rem] h-[2rem] m-2 text-center rounded-md' id="cityInput" ref={searchRef} onKeyDown={searchCities}></input>
+    <div className="relative flex flex-col items-center">
+      <div className="pointer-events-none relative -left-[11rem] top-[5.4rem]">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="w-6 h-6">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+        </span>
+      </div>
+      <input className='border-2 w-96 h-9 m-14 text-center rounded-md' id="cityInput" ref={searchRef} onKeyDown={searchCities} />
+
       {cities && <CityList cities={cities}/>}
     </div>
   )
