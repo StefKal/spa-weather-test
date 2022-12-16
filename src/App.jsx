@@ -44,7 +44,11 @@ function SearchBar() {
           </svg>
         </span>
       </div>
-      <input className='border-2 hover:border-blue-400 focus:border-blue69-400 focus:outline-none transition-colors duration-[250ms] w-96 h-9 m-14 px-8 rounded-md' id="cityInput" ref={searchRef} onKeyDown={searchCities} />
+      <input
+        className='border-2 hover:border-blue-400 focus:border-blue-400 focus:outline-none transition-colors duration-[250ms] w-96 h-9 m-14 px-8 rounded-md'
+        id="cityInput"
+        ref={searchRef}
+        onKeyDown={searchCities} />
 
       {cities && <CityList cities={cities}/>}
     </div>
@@ -64,7 +68,7 @@ function CityList({cities}) {
 
   return (
     <div>
-      <ol className='flex justify-center space-x-2 p-2'>
+      <ol className='flex flex-wrap justify-center gap-2 p-2'>
         {cityItems}
       </ol>
       {modalData && <Modal data={modalData} setModalOpen={setOpen} isOpen={open}/>}
@@ -90,7 +94,7 @@ function Modal({data, setModalOpen, isOpen}) {
   }
 
   const mainDataList = Object.keys(data.main).map((key, index) => 
-    <div key={index} className='flex flex-x justify-between bg-slate-600 rounded-md p-1'>
+    <table key={index} className='flex flex-x justify-between bg-white rounded-md p-1 border-separate border-spacing-0'>
       <div>
         {keyMapping[key]}
       </div>
@@ -103,19 +107,19 @@ function Modal({data, setModalOpen, isOpen}) {
         {key=="grnd_level" && " m" }
         {key=="sea_level" && ' m'}
       </div>
-    </div>
+    </table>
   );
 
   return (
     <ReactModal
-      className={'bg-gray-500 absolute top-[35%] left-[25%] w-1/2 h-auto rounded-xl'}
+      className={'bg-slate-200 absolute top-[25%] left-[25%] w-1/2 h-auto rounded-xl'}
       isOpen={isOpen}
       handleModalOpen={setModalOpen}
       ariaHideApp={false}>
-      <div className='flex flex-col space-y-1 p-2' >
-        <div className='flex flex-col space-y-3 p-2'>{mainDataList}</div>
+      <div className='flex flex-col items-center space-y-1 p-2' >
         <img className='w-1/6' src={`http://openweathermap.org/img/w/${iconCode}.png`}></img>
-        <button className='w-fit' onClick={()=> setModalOpen(false)}> Close </button>
+        <div className='flex flex-col space-y-3 p-2'>{mainDataList}</div>
+        <button onClick={() => setModalOpen(false)}> Close </button>
       </div>
     </ReactModal>  
   )
