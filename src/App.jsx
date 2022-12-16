@@ -34,7 +34,7 @@ function SearchBar() {
   return (
     <div className="relative flex flex-col items-center">
       <div className="pointer-events-none relative -left-[11rem] top-[5.4rem]">
-        <span>
+        <span className='h-4 w-4'>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="w-6 h-6">
             <path
               stroke-linecap="round"
@@ -44,7 +44,7 @@ function SearchBar() {
           </svg>
         </span>
       </div>
-      <input className='border-2 w-96 h-9 m-14 text-center rounded-md' id="cityInput" ref={searchRef} onKeyDown={searchCities} />
+      <input className='border-2 hover:border-blue-400 focus:border-blue69-400 focus:outline-none transition-colors duration-[250ms] w-96 h-9 m-14 px-8 rounded-md' id="cityInput" ref={searchRef} onKeyDown={searchCities} />
 
       {cities && <CityList cities={cities}/>}
     </div>
