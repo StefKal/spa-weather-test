@@ -1,6 +1,5 @@
 import ReactModal from 'react-modal';
 
-
 function Modal({ data, setModalOpen, isOpen }) {
 
     const iconCode = data.weather[0].icon;

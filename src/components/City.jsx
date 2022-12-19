@@ -20,6 +20,10 @@ function City({ city, setModalData, handleModalOpen }) {
             'main': m.main,
             'weather': m.weather
         }
+        // let data = {
+        //     'city_data': m.city,
+        //     'weather_data': m.weather
+        // }
         setModalData(data)
     }
 
