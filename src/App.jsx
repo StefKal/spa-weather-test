@@ -5,7 +5,7 @@ import SearchBar from './components/SearchBar'
 
 function App() {
   return (
-    <div className='flex flex-col relative top-80'>
+    <div className='flex flex-col relative top-40'>
 
       <h1 className='select-none text-8xl font-mono'> Weather App </h1>
       <SearchBar/>

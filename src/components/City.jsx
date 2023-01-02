@@ -13,17 +13,14 @@ function City({ city, setModalData, handleModalOpen }) {
     }
 
     const getWeather = async () => {
-        let baseURL = `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&units=metric&appid=7a1a207152a4ac5849fca18e3bbdc380`;
+        let baseURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&units=metric&appid=7a1a207152a4ac5849fca18e3bbdc380`;
         const response = await fetch(baseURL)
         let m = await response.json()
+
         let data = {
-            'main': m.main,
-            'weather': m.weather
+            'city_data': m.city,
+            'list': m.list
         }
-        // let data = {
-        //     'city_data': m.city,
-        //     'weather_data': m.weather
-        // }
         setModalData(data)
     }
 
@@ -34,7 +31,7 @@ function City({ city, setModalData, handleModalOpen }) {
     }
 
     return (
-        <button className='flex flex-col items-center w-52' onClick={onClick}>
+        <button className='flex flex-col items-center w-52  border shadow-lg' onClick={onClick}>
             <li>
                 {city.name}
             </li>
